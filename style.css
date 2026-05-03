@@ -26,7 +26,6 @@ html, body {
   height: 36px;
   border-radius: 50%;
   background: rgba(255, 255, 255, 0.88);
-  mix-blend-mode: difference;
   pointer-events: none;
   will-change: transform;
   z-index: 9999;

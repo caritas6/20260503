@@ -308,16 +308,23 @@ function reset() {
 // ── Main loop ─────────────────────────────────────────────────────────────────
 
 function updateCursor() {
-  const lerp = 0.14;
-  cursor.x += (mouse.x - cursor.x) * lerp;
-  cursor.y += (mouse.y - cursor.y) * lerp;
+  cursor.x += (mouse.x - cursor.x) * 0.14;
+  cursor.y += (mouse.y - cursor.y) * 0.14;
 
   const targetScale = mouse.down ? 0.55 : 1;
   cursor.scale += (targetScale - cursor.scale) * 0.18;
 
-  const half = 18; // half of 36px
+  const half = 18;
   cursorEl.style.transform =
     `translate(${cursor.x - half}px, ${cursor.y - half}px) scale(${cursor.scale})`;
+
+  // Sample luminance of pixel under cursor → invert to monochrome B/W
+  const px = Math.round(cursor.x), py = Math.round(cursor.y);
+  if (px >= 0 && px < W && py >= 0 && py < H) {
+    const [r, g, b] = ctx.getImageData(px, py, 1, 1).data;
+    const inv = Math.round(255 - (0.299 * r + 0.587 * g + 0.114 * b));
+    cursorEl.style.background = `rgba(${inv},${inv},${inv},0.88)`;
+  }
 }
 
 function animate() {
