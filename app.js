@@ -316,20 +316,26 @@ function drawCursor() {
   if (!cursor.visible) return;
 
   const r  = 18 * cursor.scale;
-  const px = Math.round(cursor.x), py = Math.round(cursor.y);
+  const cx = Math.round(cursor.x), cy = Math.round(cursor.y);
 
-  // Sample background luminance before drawing cursor
-  let color = '#ffffff';
-  if (px >= 0 && px < W && py >= 0 && py < H) {
-    const [pr, pg, pb] = ctx.getImageData(px, py, 1, 1).data;
-    const lum = 0.299 * pr + 0.587 * pg + 0.114 * pb;
-    color = lum < 128 ? '#ffffff' : '#000000';
+  // Sample 4 points just outside the cursor radius to avoid reading own drawing
+  const probe = 26;
+  const offsets = [[probe, 0], [-probe, 0], [0, probe], [0, -probe]];
+  let totalLum = 0, count = 0;
+  for (const [dx, dy] of offsets) {
+    const sx = cx + dx, sy = cy + dy;
+    if (sx >= 0 && sx < W && sy >= 0 && sy < H) {
+      const [pr, pg, pb] = ctx.getImageData(sx, sy, 1, 1).data;
+      totalLum += 0.299 * pr + 0.587 * pg + 0.114 * pb;
+      count++;
+    }
   }
+  const color = (count === 0 || totalLum / count < 128) ? '#ffffff' : '#000000';
 
   ctx.save();
   ctx.fillStyle = color;
   ctx.beginPath();
-  ctx.arc(cursor.x, cursor.y, r, 0, Math.PI * 2);
+  ctx.arc(cx, cy, r, 0, Math.PI * 2);
   ctx.fill();
   ctx.restore();
 }
