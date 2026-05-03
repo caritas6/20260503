@@ -322,8 +322,8 @@ function updateCursor() {
   const px = Math.round(cursor.x), py = Math.round(cursor.y);
   if (px >= 0 && px < W && py >= 0 && py < H) {
     const [r, g, b] = ctx.getImageData(px, py, 1, 1).data;
-    const inv = Math.round(255 - (0.299 * r + 0.587 * g + 0.114 * b));
-    cursorEl.style.background = `rgba(${inv},${inv},${inv},0.88)`;
+    const lum = 0.299 * r + 0.587 * g + 0.114 * b;
+    cursorEl.style.background = lum < 128 ? '#ffffff' : '#000000';
   }
 }
 
