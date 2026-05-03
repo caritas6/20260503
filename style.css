@@ -1,0 +1,59 @@
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: #050508;
+}
+
+#canvas {
+  display: block;
+  cursor: crosshair;
+}
+
+#hint {
+  position: fixed;
+  bottom: 22px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: rgba(255, 255, 255, 0.22);
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 11px;
+  letter-spacing: 0.07em;
+  white-space: nowrap;
+  pointer-events: none;
+  user-select: none;
+}
+
+#hint .sep {
+  color: rgba(0, 255, 209, 0.3);
+}
+
+#drag-overlay {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 18px;
+  letter-spacing: 0.15em;
+  color: rgba(0, 255, 209, 0.7);
+  border: 1px solid rgba(0, 255, 209, 0.25);
+  background: rgba(5, 5, 8, 0.7);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+
+#drag-overlay.visible {
+  opacity: 1;
+}
