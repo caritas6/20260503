@@ -323,7 +323,7 @@ function updateCursor() {
 function animate() {
   requestAnimationFrame(animate);
 
-  ctx.fillStyle = `rgba(5,5,8,${CFG.trailAlpha})`;
+  ctx.fillStyle = BG;
   ctx.fillRect(0, 0, W, H);
 
   overlays   = overlays.filter(o => !o.dead());
