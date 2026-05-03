@@ -18,20 +18,6 @@ html, body {
   cursor: none;
 }
 
-#cursor {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  background: #ffffff;
-  pointer-events: none;
-  will-change: transform;
-  z-index: 9999;
-  opacity: 0;
-  transition: opacity 0.2s ease;
-}
 
 #hint {
   position: fixed;
