@@ -32,6 +32,7 @@ function resize() {
 
 const mouse  = { x: 0, y: 0, down: false };
 const cursor = { x: 0, y: 0, scale: 1, visible: false };
+const cursorEl = document.getElementById('cursor');
 let particles = [];
 let texts     = [];
 let overlays  = [];
@@ -306,38 +307,17 @@ function reset() {
 
 // ── Main loop ─────────────────────────────────────────────────────────────────
 
-function drawCursor() {
-  cursor.x += (mouse.x - cursor.x) * 0.14;
-  cursor.y += (mouse.y - cursor.y) * 0.14;
+function updateCursor() {
+  const lerp = 0.14;
+  cursor.x += (mouse.x - cursor.x) * lerp;
+  cursor.y += (mouse.y - cursor.y) * lerp;
 
   const targetScale = mouse.down ? 0.55 : 1;
   cursor.scale += (targetScale - cursor.scale) * 0.18;
 
-  if (!cursor.visible) return;
-
-  const r  = 18 * cursor.scale;
-  const cx = Math.round(cursor.x), cy = Math.round(cursor.y);
-
-  // Sample 4 points just outside the cursor radius to avoid reading own drawing
-  const probe = 26;
-  const offsets = [[probe, 0], [-probe, 0], [0, probe], [0, -probe]];
-  let totalLum = 0, count = 0;
-  for (const [dx, dy] of offsets) {
-    const sx = cx + dx, sy = cy + dy;
-    if (sx >= 0 && sx < W && sy >= 0 && sy < H) {
-      const [pr, pg, pb] = ctx.getImageData(sx, sy, 1, 1).data;
-      totalLum += 0.299 * pr + 0.587 * pg + 0.114 * pb;
-      count++;
-    }
-  }
-  const color = (count === 0 || totalLum / count < 128) ? '#ffffff' : '#000000';
-
-  ctx.save();
-  ctx.fillStyle = color;
-  ctx.beginPath();
-  ctx.arc(cx, cy, r, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.restore();
+  const half = 18; // half of 36px
+  cursorEl.style.transform =
+    `translate(${cursor.x - half}px, ${cursor.y - half}px) scale(${cursor.scale})`;
 }
 
 function animate() {
@@ -357,7 +337,7 @@ function animate() {
   texts      = texts.filter(t => !t.dead());
   texts.forEach(t => { t.update(); t.draw(); });
 
-  drawCursor();
+  updateCursor();
 }
 
 // ── Events ────────────────────────────────────────────────────────────────────
@@ -367,8 +347,11 @@ window.addEventListener('resize', resize);
 canvas.addEventListener('mousemove', e => { mouse.x = e.clientX; mouse.y = e.clientY; });
 canvas.addEventListener('mousedown',  () => { mouse.down = true; });
 canvas.addEventListener('mouseup',    () => { mouse.down = false; });
-canvas.addEventListener('mouseleave', () => { mouse.down = false; cursor.visible = false; });
-canvas.addEventListener('mouseenter', () => { cursor.visible = true; });
+canvas.addEventListener('mouseleave', () => {
+  mouse.down = false;
+  cursorEl.style.opacity = '0';
+});
+canvas.addEventListener('mouseenter', () => { cursorEl.style.opacity = '1'; });
 
 document.addEventListener('keydown', e => {
   if (e.code === 'Space') { e.preventDefault(); reset(); return; }
