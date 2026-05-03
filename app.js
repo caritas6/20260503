@@ -32,7 +32,6 @@ function resize() {
 
 const mouse  = { x: 0, y: 0, down: false };
 const cursor = { x: 0, y: 0, scale: 1, visible: false };
-const cursorEl = document.getElementById('cursor');
 let particles = [];
 let texts     = [];
 let overlays  = [];
@@ -307,17 +306,22 @@ function reset() {
 
 // ── Main loop ─────────────────────────────────────────────────────────────────
 
-function updateCursor() {
-  const lerp = 0.14;
-  cursor.x += (mouse.x - cursor.x) * lerp;
-  cursor.y += (mouse.y - cursor.y) * lerp;
+function drawCursor() {
+  cursor.x += (mouse.x - cursor.x) * 0.14;
+  cursor.y += (mouse.y - cursor.y) * 0.14;
 
   const targetScale = mouse.down ? 0.55 : 1;
   cursor.scale += (targetScale - cursor.scale) * 0.18;
 
-  const half = 18; // half of 36px
-  cursorEl.style.transform =
-    `translate(${cursor.x - half}px, ${cursor.y - half}px) scale(${cursor.scale})`;
+  if (!cursor.visible) return;
+
+  ctx.save();
+  ctx.globalCompositeOperation = 'difference';
+  ctx.fillStyle = '#ffffff';
+  ctx.beginPath();
+  ctx.arc(cursor.x, cursor.y, 18 * cursor.scale, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.restore();
 }
 
 function animate() {
@@ -337,7 +341,7 @@ function animate() {
   texts      = texts.filter(t => !t.dead());
   texts.forEach(t => { t.update(); t.draw(); });
 
-  updateCursor();
+  drawCursor();
 }
 
 // ── Events ────────────────────────────────────────────────────────────────────
@@ -347,11 +351,8 @@ window.addEventListener('resize', resize);
 canvas.addEventListener('mousemove', e => { mouse.x = e.clientX; mouse.y = e.clientY; });
 canvas.addEventListener('mousedown',  () => { mouse.down = true; });
 canvas.addEventListener('mouseup',    () => { mouse.down = false; });
-canvas.addEventListener('mouseleave', () => {
-  mouse.down = false;
-  cursorEl.style.opacity = '0';
-});
-canvas.addEventListener('mouseenter', () => { cursorEl.style.opacity = '1'; });
+canvas.addEventListener('mouseleave', () => { mouse.down = false; cursor.visible = false; });
+canvas.addEventListener('mouseenter', () => { cursor.visible = true; });
 
 document.addEventListener('keydown', e => {
   if (e.code === 'Space') { e.preventDefault(); reset(); return; }
