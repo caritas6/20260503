@@ -30,8 +30,7 @@ function resize() {
 
 // ── State ─────────────────────────────────────────────────────────────────────
 
-const mouse  = { x: 0, y: 0, down: false };
-const cursor = { x: 0, y: 0, scale: 1, visible: false };
+const mouse = { x: 0, y: 0, down: false };
 let particles = [];
 let texts     = [];
 let overlays  = [];
@@ -306,28 +305,10 @@ function reset() {
 
 // ── Main loop ─────────────────────────────────────────────────────────────────
 
-function drawCursor() {
-  cursor.x += (mouse.x - cursor.x) * 0.14;
-  cursor.y += (mouse.y - cursor.y) * 0.14;
-
-  const targetScale = mouse.down ? 0.55 : 1;
-  cursor.scale += (targetScale - cursor.scale) * 0.18;
-
-  if (!cursor.visible) return;
-
-  ctx.save();
-  ctx.globalCompositeOperation = 'difference';
-  ctx.fillStyle = '#ffffff';
-  ctx.beginPath();
-  ctx.arc(cursor.x, cursor.y, 18 * cursor.scale, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.restore();
-}
-
 function animate() {
   requestAnimationFrame(animate);
 
-  ctx.fillStyle = BG;
+  ctx.fillStyle = `rgba(5,5,8,${CFG.trailAlpha})`;
   ctx.fillRect(0, 0, W, H);
 
   overlays   = overlays.filter(o => !o.dead());
@@ -340,8 +321,6 @@ function animate() {
 
   texts      = texts.filter(t => !t.dead());
   texts.forEach(t => { t.update(); t.draw(); });
-
-  drawCursor();
 }
 
 // ── Events ────────────────────────────────────────────────────────────────────
@@ -351,8 +330,7 @@ window.addEventListener('resize', resize);
 canvas.addEventListener('mousemove', e => { mouse.x = e.clientX; mouse.y = e.clientY; });
 canvas.addEventListener('mousedown',  () => { mouse.down = true; });
 canvas.addEventListener('mouseup',    () => { mouse.down = false; });
-canvas.addEventListener('mouseleave', () => { mouse.down = false; cursor.visible = false; });
-canvas.addEventListener('mouseenter', () => { cursor.visible = true; });
+canvas.addEventListener('mouseleave', () => { mouse.down = false; });
 
 document.addEventListener('keydown', e => {
   if (e.code === 'Space') { e.preventDefault(); reset(); return; }
@@ -406,8 +384,6 @@ document.addEventListener('drop', e => {
 // ── Boot ──────────────────────────────────────────────────────────────────────
 
 resize();
-cursor.x = W / 2;
-cursor.y = H / 2;
 ctx.fillStyle = BG;
 ctx.fillRect(0, 0, W, H);
 initParticles();
